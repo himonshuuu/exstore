@@ -5,9 +5,6 @@ defmodule ExStore.Cache.Cache do
 
   use GenServer
 
-  @typedoc "The PID of the cache server"
-  @type pid :: pid()
-
   @typedoc "The result of a cache operation"
   @type result ::
           :ok
@@ -57,6 +54,20 @@ defmodule ExStore.Cache.Cache do
     GenServer.call(pid, {:ttl, key})
   end
 
+  @doc """
+  Dumps all key-value pairs in the cache as a map.
+  """
+  def dump_all do
+    GenServer.call(__MODULE__, :dump_all)
+  end
+
+  @doc """
+  Restores the cache from a map of key-value pairs.
+  """
+  def restore(data) when is_map(data) do
+    GenServer.cast(__MODULE__, {:restore, data})
+  end
+
   # Server Callbacks
   @impl true
   def init(:ok) do
@@ -96,12 +107,25 @@ defmodule ExStore.Cache.Cache do
   def handle_call({:ttl, key}, _from, %{table: table} = state) do
     case :ets.lookup(table, key) do
       [{^key, _value}] ->
-        # For simplicity, we don’t track TTLs here in this version
+        # For simplicity, we don't track TTLs here in this version
         {:reply, :no_ttl, state}
 
       [] ->
         {:reply, :not_found, state}
     end
+  end
+
+  @impl true
+  def handle_call(:dump_all, _from, %{table: table} = state) do
+    all = :ets.tab2list(table) |> Enum.into(%{})
+    {:reply, all, state}
+  end
+
+  @impl true
+  def handle_cast({:restore, data}, %{table: table} = state) do
+    :ets.delete_all_objects(table)
+    Enum.each(data, fn {k, v} -> :ets.insert(table, {k, v}) end)
+    {:noreply, state}
   end
 
   @impl true

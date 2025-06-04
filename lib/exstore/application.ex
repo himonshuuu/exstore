@@ -5,6 +5,10 @@ defmodule ExStore.Application do
 
   @impl true
   def start(_type, _args) do
-    ExStore.Supervisor.start_link(name: ExStore.Supervisor)
+    {:ok, sup} = ExStore.Supervisor.start_link(name: ExStore.Supervisor)
+    # Load persisted data and restore cache
+    data = ExStore.Persistence.load()
+    ExStore.Cache.Cache.restore(data)
+    {:ok, sup}
   end
 end

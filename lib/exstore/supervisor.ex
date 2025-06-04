@@ -9,7 +9,7 @@ defmodule ExStore.Supervisor do
   def init(:ok) do
     children = [
       ExStore.Cache.Cache,
-      # Start TCP server on port 6380
+      ExStore.Persistence,
       {ExStore.Net.TCP, 6380}
     ]
 
