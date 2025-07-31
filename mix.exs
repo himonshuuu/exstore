@@ -21,6 +21,7 @@ defmodule ExStore.MixProject do
   defp deps do
     [
       {:ex_doc, "~> 0.30", only: :dev, runtime: false},
+      {:jason, "~> 1.4"}
     ]
   end
 end
