@@ -10,6 +10,7 @@ defmodule ExStore.Supervisor do
     children = [
       ExStore.Cache.Cache,
       ExStore.Persistence,
+      ExStore.RecoveryEngine,
       {ExStore.Net.TCP, 6380}
     ]
 
