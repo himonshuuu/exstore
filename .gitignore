@@ -23,3 +23,5 @@ ex_cache-*.tar
 /tmp/
 
 *.dump
+
+data/
